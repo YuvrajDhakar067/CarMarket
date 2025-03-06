@@ -1,0 +1,99 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Payment Requests - Car Market{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Payment Requests</h2>
+    
+    {% if transactions %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Car</th>
+                        <th>Buyer</th>
+                        <th>Amount</th>
+                        <th>Transaction ID</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if transaction.car.images.first %}
+                                        <img src="{{ transaction.car.images.first.image.url }}" alt="{{ transaction.car.brand }} {{ transaction.car.model }}" class="me-3" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px;">
+                                    {% else %}
+                                        <div class="me-3 bg-light d-flex justify-content-center align-items-center" style="width: 60px; height: 40px; border-radius: 4px;">
+                                            <i class="fas fa-car text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ transaction.car.brand }} {{ transaction.car.model }}</strong>
+                                        <div class="text-muted small">{{ transaction.car.year }} | {{ transaction.car.condition }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ transaction.buyer.username }}</td>
+                            <td>₹{{ transaction.amount }}</td>
+                            <td>{{ transaction.transaction_id }}</td>
+                            <td>{{ transaction.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="#" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#paymentModal{{ transaction.id }}">View Payment</a>
+                                    <a href="{% url 'approve_payment' transaction.pk %}" class="btn btn-sm btn-outline-success">Approve</a>
+                                    <a href="{% url 'reject_payment' transaction.pk %}" class="btn btn-sm btn-outline-danger">Reject</a>
+                                </div>
+                                
+                                <!-- Payment Modal -->
+                                <div class="modal fade" id="paymentModal{{ transaction.id }}" tabindex="-1" aria-labelledby="paymentModalLabel{{ transaction.id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="paymentModalLabel{{ transaction.id }}">Payment Details</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <h6>Transaction Information</h6>
+                                                        <p><strong>Car:</strong> {{ transaction.car.brand }} {{ transaction.car.model }}</p>
+                                                        <p><strong>Buyer:</strong> {{ transaction.buyer.username }}</p>
+                                                        <p><strong>Amount:</strong> ₹{{ transaction.amount }}</p>
+                                                        <p><strong>Transaction ID:</strong> {{ transaction.transaction_id }}</p>
+                                                        <p><strong>Date:</strong> {{ transaction.created_at|date:"F j, Y, g:i a" }}</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <h6>Payment Screenshot</h6>
+                                                        {% if transaction.payment_screenshot %}
+                                                            <img src="{{ transaction.payment_screenshot.url }}" alt="Payment Screenshot" class="img-fluid rounded">
+                                                        {% else %}
+                                                            <p class="text-muted">No screenshot provided</p>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                <a href="{% url 'approve_payment' transaction.pk %}" class="btn btn-success">Approve Payment</a>
+                                                <a href="{% url 'reject_payment' transaction.pk %}" class="btn btn-danger">Reject Payment</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <p>You don't have any pending payment requests.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

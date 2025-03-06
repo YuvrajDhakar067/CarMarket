@@ -1,0 +1,142 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ car.brand }} {{ car.model }} - Car Market{% endblock %}
+
+{% block extra_css %}
+<style>
+    .carousel-item img {
+        height: 400px;
+        object-fit: cover;
+    }
+    .seller-info {
+        border-left: 3px solid #007bff;
+        padding-left: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="mb-3">
+        <a href="{% url 'car_list' %}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Listings
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Car Images Carousel -->
+            <div id="carImageCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+                <div class="carousel-inner rounded">
+                    {% if car.images.all %}
+                        {% for image in car.images.all %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ car.brand }} {{ car.model }}">
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="carousel-item active">
+                            <div class="d-block w-100 bg-light d-flex justify-content-center align-items-center" style="height: 400px;">
+                                <i class="fas fa-car fa-5x text-muted"></i>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                {% if car.images.count > 1 %}
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carImageCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carImageCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                {% endif %}
+            </div>
+            
+            <!-- Car Details -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">{{ car.brand }} {{ car.model }} ({{ car.year }})</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p><strong>Price:</strong> ₹{{ car.price }}</p>
+                            <p><strong>Condition:</strong> {{ car.condition }}</p>
+                            <p><strong>Year:</strong> {{ car.year }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Mileage:</strong> {{ car.mileage }} km</p>
+                            <p><strong>Location:</strong> {{ car.location }}</p>
+                            <p><strong>Listed:</strong> {{ car.created_at|date:"F j, Y" }}</p>
+                        </div>
+                    </div>
+                    
+                    <h5>Description</h5>
+                    <p>{{ car.description }}</p>
+                    
+                    {% if user.is_authenticated and user != car.seller %}
+                        <div class="d-grid gap-2 mt-4">
+                            <a href="{% url 'reserve_car' car.pk %}" class="btn btn-success btn-lg">Reserve This Car</a>
+                        </div>
+                    {% elif user == car.seller %}
+                        <div class="alert alert-info">
+                            <p>This is your listing. You can manage it from your dashboard.</p>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <p>Please <a href="{% url 'login' %}">login</a> to reserve this car.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Seller Information -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Seller Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="{{ car.seller.profile.profile_picture.url }}" alt="{{ car.seller.username }}" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                        <div>
+                            <h6 class="mb-0">{{ car.seller.username }}</h6>
+                            <p class="text-muted mb-0">Member since {{ car.seller.date_joined|date:"F Y" }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="seller-info mb-3">
+                        {% if car.seller.profile.phone_number %}
+                            <p><i class="fas fa-phone me-2"></i>{{ car.seller.profile.phone_number }}</p>
+                        {% endif %}
+                        <p><i class="fas fa-envelope me-2"></i>{{ car.seller.email }}</p>
+                        {% if car.seller.profile.address %}
+                            <p><i class="fas fa-map-marker-alt me-2"></i>{{ car.seller.profile.address }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <p class="mb-0"><i class="fas fa-info-circle me-2"></i>Contact the seller for more information about this car.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- UPI Payment Information -->
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Payment Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>UPI ID:</strong> {{ car.upi_id }}</p>
+                    <div class="alert alert-warning">
+                        <p class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>When reserving, you'll need to make payment to this UPI ID and upload payment details.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

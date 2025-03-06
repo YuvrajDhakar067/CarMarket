@@ -1,0 +1,69 @@
+{% extends 'base/base.html' %}
+
+{% block title %}My Purchases - Car Market{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">My Purchases</h2>
+    
+    {% if transactions %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Car</th>
+                        <th>Seller</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Purchase Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if transaction.car.images.first %}
+                                        <img src="{{ transaction.car.images.first.image.url }}" alt="{{ transaction.car.brand }} {{ transaction.car.model }}" class="me-3" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px;">
+                                    {% else %}
+                                        <div class="me-3 bg-light d-flex justify-content-center align-items-center" style="width: 60px; height: 40px; border-radius: 4px;">
+                                            <i class="fas fa-car text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ transaction.car.brand }} {{ transaction.car.model }}</strong>
+                                        <div class="text-muted small">{{ transaction.car.year }} | {{ transaction.car.condition }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ transaction.car.seller.username }}</td>
+                            <td>₹{{ transaction.amount }}</td>
+                            <td>
+                                {% if transaction.status == 'Approved' %}
+                                    <span class="badge bg-success">Approved</span>
+                                {% elif transaction.status == 'Rejected' %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ transaction.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <a href="{% url 'car_detail' transaction.car.pk %}" class="btn btn-sm btn-outline-primary">View Car</a>
+                                {% if transaction.status == 'Rejected' %}
+                                    <a href="{% url 'reserve_car' transaction.car.pk %}" class="btn btn-sm btn-outline-warning">Resubmit Payment</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <p>You haven't purchased any cars yet. <a href="{% url 'car_list' %}">Browse cars</a> to make your first purchase.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

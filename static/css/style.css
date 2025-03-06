@@ -1,0 +1,81 @@
+/* Custom styles for Car Market */
+
+/* General styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+}
+
+/* Card hover effects */
+.card {
+    transition: transform 0.3s, box-shadow 0.3s;
+    margin-bottom: 20px;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Car image styles */
+.car-image {
+    height: 200px;
+    object-fit: cover;
+}
+
+/* Notification badge */
+.notification-badge {
+    position: relative;
+    top: -10px;
+    right: 5px;
+    padding: 3px 5px;
+    border-radius: 50%;
+    background: red;
+    color: white;
+    font-size: 0.7rem;
+}
+
+/* Dashboard card icons */
+.dashboard-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+/* Seller info sidebar */
+.seller-info {
+    border-left: 3px solid #007bff;
+    padding-left: 15px;
+}
+
+/* Price tag */
+.price-tag {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #28a745;
+}
+
+/* UPI payment info */
+.upi-info {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    border-left: 3px solid #ffc107;
+}
+
+/* Footer */
+.footer {
+    margin-top: auto;
+    padding: 20px 0;
+    background-color: #f8f9fa;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .car-image {
+        height: 150px;
+    }
+    
+    .carousel-item img {
+        height: 300px !important;
+    }
+} 

@@ -1,0 +1,46 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Reject Payment - Car Market{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">Reject Payment</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>Transaction Details</h5>
+                        <p><strong>Car:</strong> {{ transaction.car.brand }} {{ transaction.car.model }} ({{ transaction.car.year }})</p>
+                        <p><strong>Buyer:</strong> {{ transaction.buyer.username }}</p>
+                        <p><strong>Amount:</strong> ₹{{ transaction.amount }}</p>
+                        <p><strong>Transaction ID:</strong> {{ transaction.transaction_id }}</p>
+                        <p><strong>Date:</strong> {{ transaction.created_at|date:"F j, Y, g:i a" }}</p>
+                    </div>
+                    
+                    {% if transaction.payment_screenshot %}
+                        <div class="mb-4">
+                            <h5>Payment Screenshot</h5>
+                            <img src="{{ transaction.payment_screenshot.url }}" alt="Payment Screenshot" class="img-fluid rounded">
+                        </div>
+                    {% endif %}
+                    
+                    <div class="alert alert-warning">
+                        <p><i class="fas fa-exclamation-triangle me-2"></i>By rejecting this payment, you are indicating that you have not received the payment or there is an issue with the payment details. The buyer will be notified to resubmit correct payment details.</p>
+                    </div>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'payment_requests' %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-danger">Reject Payment</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

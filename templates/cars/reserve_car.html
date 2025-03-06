@@ -1,0 +1,64 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Reserve Car - Car Market{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Reserve Car: {{ car.brand }} {{ car.model }}</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            {% if car.images.first %}
+                                <img src="{{ car.images.first.image.url }}" alt="{{ car.brand }} {{ car.model }}" class="img-fluid rounded">
+                            {% else %}
+                                <div class="bg-light d-flex justify-content-center align-items-center rounded" style="height: 150px;">
+                                    <i class="fas fa-car fa-3x text-muted"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <h5>{{ car.brand }} {{ car.model }} ({{ car.year }})</h5>
+                            <p class="text-muted">{{ car.condition }} | {{ car.mileage }} km</p>
+                            <p><strong>Price:</strong> ₹{{ car.price }}</p>
+                            <p><strong>Seller:</strong> {{ car.seller.username }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mb-4">
+                        <h5><i class="fas fa-info-circle me-2"></i>Payment Instructions</h5>
+                        <p>Please follow these steps to complete your reservation:</p>
+                        <ol>
+                            <li>Make a payment of <strong>₹{{ car.price }}</strong> to the seller's UPI ID: <strong>{{ car.upi_id }}</strong></li>
+                            <li>Take a screenshot of your payment confirmation</li>
+                            <li>Enter the transaction ID and upload the screenshot below</li>
+                            <li>The seller will verify your payment and approve your reservation</li>
+                        </ol>
+                    </div>
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.transaction_id|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.payment_screenshot|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-3">
+                            <button type="submit" class="btn btn-success btn-lg">Submit Payment Details</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

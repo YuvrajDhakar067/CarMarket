@@ -1,0 +1,83 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Dashboard - Car Market{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Dashboard</h2>
+    
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-car fa-3x mb-3 text-primary"></i>
+                    <h5 class="card-title">My Listed Cars</h5>
+                    <p class="card-text">{{ listed_cars_count }} cars</p>
+                    <a href="{% url 'my_listings' %}" class="btn btn-primary">View</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-shopping-cart fa-3x mb-3 text-success"></i>
+                    <h5 class="card-title">My Purchased Cars</h5>
+                    <p class="card-text">{{ purchased_cars_count }} cars</p>
+                    <a href="{% url 'my_purchases' %}" class="btn btn-success">View</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-money-bill-wave fa-3x mb-3 text-warning"></i>
+                    <h5 class="card-title">Payment Requests</h5>
+                    <p class="card-text">{{ pending_payments_count }} pending</p>
+                    <a href="{% url 'payment_requests' %}" class="btn btn-warning">View</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-bell fa-3x mb-3 text-info"></i>
+                    <h5 class="card-title">Notifications</h5>
+                    <p class="card-text">{{ unread_notifications_count }} unread</p>
+                    <a href="{% url 'notifications' %}" class="btn btn-info">View</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'car_list' %}" class="btn btn-outline-primary">Browse Cars</a>
+                        <a href="{% url 'sell_car' %}" class="btn btn-outline-success">Sell a Car</a>
+                        <a href="{% url 'profile' %}" class="btn btn-outline-info">Update Profile</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Account Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Username:</strong> {{ user.username }}</p>
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                    <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+                    <p><strong>Phone:</strong> {{ user.profile.phone_number|default:"Not provided" }}</p>
+                    <a href="{% url 'profile' %}" class="btn btn-sm btn-primary">Edit Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

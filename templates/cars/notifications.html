@@ -1,0 +1,33 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Notifications - Car Market{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Notifications</h2>
+    
+    {% if notifications %}
+        <div class="list-group">
+            {% for notification in notifications %}
+                <div class="list-group-item list-group-item-action {% if not notification.is_read %}list-group-item-primary{% endif %}">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">
+                            {% if not notification.is_read %}
+                                <span class="badge bg-primary me-2">New</span>
+                            {% endif %}
+                            Notification
+                        </h5>
+                        <small>{{ notification.created_at|timesince }} ago</small>
+                    </div>
+                    <p class="mb-1">{{ notification.message }}</p>
+                    <small class="text-muted">{{ notification.created_at|date:"F j, Y, g:i a" }}</small>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <p>You don't have any notifications yet.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

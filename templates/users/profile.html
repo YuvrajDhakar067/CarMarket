@@ -1,0 +1,53 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Profile - Car Market{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Profile</h4>
+                </div>
+                <div class="card-body text-center">
+                    <img class="rounded-circle img-fluid mb-3" src="{{ user.profile.profile_picture.url }}" alt="{{ user.username }}" style="width: 150px; height: 150px; object-fit: cover;">
+                    <h5>{{ user.username }}</h5>
+                    <p class="text-muted">{{ user.email }}</p>
+                    <p>{{ user.first_name }} {{ user.last_name }}</p>
+                    {% if user.profile.phone_number %}
+                    <p><i class="fas fa-phone me-2"></i>{{ user.profile.phone_number }}</p>
+                    {% endif %}
+                    {% if user.profile.address %}
+                    <p><i class="fas fa-map-marker-alt me-2"></i>{{ user.profile.address }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Update Profile</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <fieldset class="mb-3">
+                            <legend class="border-bottom mb-4">Account Information</legend>
+                            {{ u_form|crispy }}
+                        </fieldset>
+                        <fieldset class="mb-3">
+                            <legend class="border-bottom mb-4">Profile Information</legend>
+                            {{ p_form|crispy }}
+                        </fieldset>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" type="submit">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
