@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.core.mail import send_mail
 from django.conf import settings
+from django.http import HttpResponseRedirect
 from .models import Car, CarImage, Transaction, Notification
 from .forms import CarForm, CarImageForm, TransactionForm, CarSearchForm
 
@@ -120,34 +121,44 @@ def delete_car(request, pk):
 
 @login_required
 def reserve_car(request, pk):
-    car = get_object_or_404(Car, pk=pk, is_sold=False)
-    
-    if car.seller == request.user:
-        messages.error(request, 'You cannot reserve your own car!')
-        return redirect('car_detail', pk=pk)
-    
-    if request.method == 'POST':
-        form = TransactionForm(request.POST, request.FILES)
+    try:
+        car = Car.objects.get(pk=pk)
         
-        if form.is_valid():
-            transaction = form.save(commit=False)
-            transaction.car = car
-            transaction.buyer = request.user
-            transaction.amount = car.price
-            transaction.save()
+        if car.is_sold:
+            messages.error(request, 'This car has already been sold.')
+            return redirect('car_detail', pk=pk)
+        
+        if car.seller == request.user:
+            messages.error(request, 'You cannot reserve your own car!')
+            return redirect('car_detail', pk=pk)
+        
+        if request.method == 'POST':
+            form = TransactionForm(request.POST, request.FILES)
             
-            # Create notification for seller
-            Notification.objects.create(
-                user=car.seller,
-                message=f'New payment request for your {car.brand} {car.model} from {request.user.username}. Please verify the payment details.'
-            )
-            
-            messages.success(request, 'Your payment details have been submitted. The seller will verify and approve your payment.')
-            return redirect('dashboard')
-    else:
-        form = TransactionForm()
-    
-    return render(request, 'cars/reserve_car.html', {'car': car, 'form': form})
+            if form.is_valid():
+                transaction = form.save(commit=False)
+                transaction.car = car
+                transaction.buyer = request.user
+                transaction.amount = car.price
+                transaction.save()
+                
+                # Create notification for seller
+                Notification.objects.create(
+                    user=car.seller,
+                    message=f'New payment request for your {car.brand} {car.model} from {request.user.username}. Please verify the payment details.',
+                    notification_type='payment_request',
+                    related_id=transaction.id
+                )
+                
+                messages.success(request, 'Your payment details have been submitted. The seller will verify and approve your payment.')
+                return redirect('dashboard')
+        else:
+            form = TransactionForm()
+        
+        return render(request, 'cars/reserve_car.html', {'car': car, 'form': form})
+    except Car.DoesNotExist:
+        messages.error(request, 'The car you are looking for does not exist.')
+        return redirect('car_list')
 
 @login_required
 def my_listings(request):
@@ -180,7 +191,9 @@ def approve_payment(request, pk):
         # Create notification for buyer
         Notification.objects.create(
             user=transaction.buyer,
-            message=f'Your payment for {car.brand} {car.model} has been approved. The car will be delivered to you soon.'
+            message=f'Your payment for {car.brand} {car.model} has been approved. The car will be delivered to you soon.',
+            notification_type='payment_approved',
+            related_id=transaction.id
         )
         
         messages.success(request, 'Payment has been approved successfully!')
@@ -199,7 +212,9 @@ def reject_payment(request, pk):
         # Create notification for buyer
         Notification.objects.create(
             user=transaction.buyer,
-            message=f'Your payment for {transaction.car.brand} {transaction.car.model} has been rejected. Please re-upload correct payment details.'
+            message=f'Your payment for {transaction.car.brand} {transaction.car.model} has been rejected. Please re-upload correct payment details.',
+            notification_type='payment_rejected',
+            related_id=transaction.id
         )
         
         messages.success(request, 'Payment has been rejected successfully!')
@@ -210,6 +225,27 @@ def reject_payment(request, pk):
 @login_required
 def notifications(request):
     notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+    
+    # Handle notification click
+    notification_id = request.GET.get('notification_id')
+    if notification_id:
+        try:
+            notification = Notification.objects.get(id=notification_id, user=request.user)
+            notification.is_read = True
+            notification.save()
+            
+            # Redirect based on notification type
+            if notification.notification_type == 'payment_request':
+                return redirect('approve_payment', pk=notification.related_id)
+            elif notification.notification_type == 'payment_approved':
+                return redirect('my_purchases')
+            elif notification.notification_type == 'payment_rejected':
+                return redirect('reserve_car', pk=Transaction.objects.get(id=notification.related_id).car.id)
+            else:
+                # Default redirect to dashboard
+                return redirect('dashboard')
+        except Notification.DoesNotExist:
+            pass
     
     # Mark all as read
     unread_notifications = notifications.filter(is_read=False)

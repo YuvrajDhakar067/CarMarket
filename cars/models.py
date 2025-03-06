@@ -59,9 +59,17 @@ class Transaction(models.Model):
         ordering = ['-created_at']
 
 class Notification(models.Model):
+    NOTIFICATION_TYPES = (
+        ('payment_request', 'Payment Request'),
+        ('payment_approved', 'Payment Approved'),
+        ('payment_rejected', 'Payment Rejected'),
+    )
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     message = models.TextField()
     is_read = models.BooleanField(default=False)
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, null=True, blank=True)
+    related_id = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):

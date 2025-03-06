@@ -59,6 +59,14 @@ def dashboard(request):
     
     return render(request, 'users/dashboard.html', context)
 
+@login_required
+def update_profile_picture(request):
+    if request.method == 'POST' and request.FILES.get('profile_picture'):
+        request.user.profile.profile_picture = request.FILES['profile_picture']
+        request.user.profile.save()
+        messages.success(request, 'Profile picture updated successfully!')
+    return redirect(request.META.get('HTTP_REFERER', 'profile'))
+
 class CustomLoginView(LoginView):
     template_name = 'users/login.html'
 

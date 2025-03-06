@@ -4,30 +4,73 @@
 
 {% block content %}
 <div class="container">
-    <h2 class="mb-4">Notifications</h2>
+    <h2 class="mb-4">
+        <i class="fas fa-bell me-2 text-primary"></i>Notifications
+    </h2>
     
     {% if notifications %}
         <div class="list-group">
             {% for notification in notifications %}
-                <div class="list-group-item list-group-item-action {% if not notification.is_read %}list-group-item-primary{% endif %}">
-                    <div class="d-flex w-100 justify-content-between">
+                <a href="{% if 'payment request' in notification.message %}{% url 'payment_requests' %}{% elif 'payment for' in notification.message %}{% url 'my_purchases' %}{% else %}{% url 'dashboard' %}{% endif %}" 
+                   class="list-group-item list-group-item-action {% if not notification.is_read %}list-group-item-primary{% endif %} position-relative">
+                    <div class="d-flex w-100 justify-content-between align-items-center">
                         <h5 class="mb-1">
                             {% if not notification.is_read %}
                                 <span class="badge bg-primary me-2">New</span>
                             {% endif %}
-                            Notification
+                            {% if 'payment request' in notification.message %}
+                                <i class="fas fa-money-bill-wave me-2 text-success"></i>Payment Request
+                            {% elif 'approved' in notification.message %}
+                                <i class="fas fa-check-circle me-2 text-success"></i>Payment Approved
+                            {% elif 'rejected' in notification.message %}
+                                <i class="fas fa-times-circle me-2 text-danger"></i>Payment Rejected
+                            {% else %}
+                                <i class="fas fa-info-circle me-2 text-primary"></i>Notification
+                            {% endif %}
                         </h5>
-                        <small>{{ notification.created_at|timesince }} ago</small>
+                        <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
                     </div>
                     <p class="mb-1">{{ notification.message }}</p>
-                    <small class="text-muted">{{ notification.created_at|date:"F j, Y, g:i a" }}</small>
-                </div>
+                    <small class="text-muted d-block">{{ notification.created_at|date:"F j, Y, g:i a" }}</small>
+                    {% if not notification.is_read %}
+                        <span class="position-absolute top-0 end-0 mt-2 me-2">
+                            <i class="fas fa-circle text-primary" style="font-size: 8px;"></i>
+                        </span>
+                    {% endif %}
+                </a>
             {% endfor %}
         </div>
     {% else %}
         <div class="alert alert-info">
-            <p>You don't have any notifications yet.</p>
+            <i class="fas fa-info-circle me-2"></i>You don't have any notifications yet.
         </div>
     {% endif %}
 </div>
+
+<style>
+    .list-group-item {
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+    }
+    
+    .list-group-item:hover {
+        transform: translateX(5px);
+        background-color: var(--light-color);
+        border-left-color: var(--primary-color);
+    }
+    
+    .list-group-item-primary {
+        border-left-color: var(--primary-color);
+        background-color: rgba(52, 152, 219, 0.1);
+    }
+    
+    .list-group-item-primary:hover {
+        background-color: rgba(52, 152, 219, 0.15);
+    }
+    
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.35em 0.65em;
+    }
+</style>
 {% endblock %} 
